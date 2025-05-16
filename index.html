@@ -11,48 +11,79 @@
       background: #f2f4f8;
       margin: 0;
       padding: 0;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
     }
-    .container {
+
+    .box {
       background: white;
       padding: 3rem;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       max-width: 400px;
-      text-align: center;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    h1 {
-      color: #1f3c88;
-      margin-bottom: 2rem;
-    }
+
     .btn {
       display: block;
-      margin: 10px auto;
-      padding: 12px 20px;
-      font-size: 16px;
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
       background: #1f3c88;
       color: white;
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
       text-decoration: none;
-      width: 100%;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
     }
+
     .btn:hover {
       background: #163172;
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    .logout {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #999;
+      cursor: pointer;
+    }
+    .logout:hover {
+      text-decoration: underline;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Bienvenido al Proyecto</h1>
+  <div class="box">
     <a href="sobreNosotros.html" class="btn">Sobre nosotros</a>
     <a href="arinc429.html" class="btn">¿De qué se trata nuestro proyecto?</a>
     <a href="doñaRosa.html" class="btn">Explicación básica del proyecto</a>
     <a href="ingeniero.html" class="btn">Explicación técnica del proyecto</a>
+    <div class="logout" onclick="logout()">Cerrar sesión</div>
   </div>
+
+  <script>
+    // Verificación de sesión activa
+    const currentUser = localStorage.getItem("currentUser");
+
+    if (!currentUser) {
+      // Si no hay usuario logueado, redirige al login
+      window.location.href = "login.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("currentUser");
+      window.location.href = "login.html";
+    }
+  </script>
 </body>
 </html>
