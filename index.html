@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Proyecto Arinc 429</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Montserrat+Alternates:wght@600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: 'Roboto', sans-serif;
-      background: #f2f4f8;
+      transition: background-image 0.5s ease-in-out;
+      background: url('arinc429.jpg') no-repeat center center fixed;
+      background-size: cover;
+      backdrop-filter: brightness(0.95);
     }
 
     .top-bar {
@@ -20,6 +23,7 @@
       align-items: center;
       padding: 10px 20px;
       position: relative;
+      background-color: rgba(255, 255, 255, 0.85);
     }
 
     .pill-button {
@@ -29,7 +33,7 @@
       background-color: #1f3c88;
       color: white;
       cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
+      transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
       font-size: 14px;
     }
 
@@ -70,11 +74,22 @@
       display: block;
     }
 
+    .title-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 60px;
+      margin-bottom: 30px;
+    }
+
     .title {
-      text-align: center;
-      font-size: 32px;
-      font-weight: bold;
-      margin: 40px 0 20px;
+      font-family: 'Montserrat Alternates', sans-serif;
+      font-size: 48px;
+      font-weight: 600;
+      color: #1f3c88;
+      background-color: rgba(255, 255, 255, 0.75);
+      padding: 20px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .content {
@@ -94,7 +109,7 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
+      transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
     }
 
     .main-button:hover {
@@ -114,7 +129,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: right 0.3s ease;
+      transition: right 0.5s ease-in-out;
       z-index: 999;
     }
 
@@ -156,12 +171,29 @@
     </div>
   </div>
 
-  <div class="title">Proyecto Arinc 429</div>
+  <div class="title-container">
+    <div class="title">Proyecto Arinc 429</div>
+  </div>
 
   <div class="content">
-    <button class="main-button" onclick="location.href='arinc429.html'">¿De qué se trata nuestro proyecto?</button>
-    <button class="main-button" onclick="location.href='doñaRosa.html'">Explicación básica del proyecto</button>
-    <button class="main-button" onclick="location.href='ingeniero.html'">Explicación técnica del proyecto</button>
+    <button class="main-button"
+      onmouseover="changeBackground('proyecto.jpg')"
+      onmouseout="resetBackground()"
+      onclick="location.href='arinc429.html'">
+      ¿De qué se trata nuestro proyecto?
+    </button>
+    <button class="main-button"
+      onmouseover="changeBackground('doñaRosa.jpg')"
+      onmouseout="resetBackground()"
+      onclick="location.href='doñaRosa.html'">
+      Explicación básica del proyecto
+    </button>
+    <button class="main-button"
+      onmouseover="changeBackground('ingeniero.jpg')"
+      onmouseout="resetBackground()"
+      onclick="location.href='ingeniero.html'">
+      Explicación técnica del proyecto
+    </button>
   </div>
 
   <div id="aboutCard">
@@ -198,6 +230,14 @@
         loginContainer.innerHTML = `
           <button id="loginBtn" class="pill-button" onclick="location.href='login.html'">Iniciar sesión</button>`;
       }
+    }
+
+    function changeBackground(image) {
+      document.body.style.backgroundImage = `url('${image}')`;
+    }
+
+    function resetBackground() {
+      document.body.style.backgroundImage = "url('arinc429.jpg')";
     }
 
     window.onload = updateUI;
