@@ -149,7 +149,7 @@
   <div class="top-bar">
     <div id="left-controls">
       <div id="loginContainer">
-        <button id="loginBtn" class="pill-button" href="login.html">Iniciar sesión</button>
+        <button id="loginBtn" class="pill-button" onclick="location.href='login.html'">Iniciar sesión</button>
       </div>
     </div>
     <div id="right-controls">
@@ -175,14 +175,6 @@
     function toggleAbout() {
       const card = document.getElementById('aboutCard');
       card.classList.toggle('open');
-    }
-
-    function login() {
-      const username = prompt("Ingrese su nombre de usuario:");
-      if (username) {
-        localStorage.setItem("currentUser", username);
-        updateUI();
-      }
     }
 
     function logout() {
