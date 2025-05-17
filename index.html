@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -6,9 +6,7 @@
   <title>Proyecto Arinc 429</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -16,30 +14,12 @@
       background: #f2f4f8;
     }
 
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
+    .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 10px 20px;
-      z-index: 1000;
-      transition: top 0.3s;
-    }
-
-    #title {
-      font-size: 20px;
-      font-weight: bold;
-      text-align: center;
-      flex: 1;
-    }
-
-    .header-buttons {
-      display: flex;
-      gap: 10px;
+      position: relative;
     }
 
     .pill-button {
@@ -58,15 +38,45 @@
       transform: translateY(-2px);
     }
 
-    #greeting {
-      font-size: 14px;
-      color: #ccc;
-      margin-right: 10px;
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      z-index: 1000;
+    }
+
+    .dropdown-content div {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+
+    .dropdown-content div:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: bold;
+      margin: 40px 0 20px;
     }
 
     .content {
-      margin-top: 80px;
-      padding: 40px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -125,17 +135,29 @@
       font-size: 14px;
       color: #333;
     }
+
+    .close-btn {
+      align-self: flex-end;
+      font-size: 20px;
+      cursor: pointer;
+      color: #333;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
-  <header id="header">
-    <div id="title">Proyecto Arinc 429</div>
-    <div class="header-buttons">
-      <button class="pill-button" onclick="toggleAbout()">Sobre nosotros</button>
-      <button id="loginBtn" class="pill-button" onclick="login()">Iniciar sesión</button>
-      <div id="greeting" style="display: none;"></div>
+  <div class="top-bar">
+    <div id="left-controls">
+      <div id="loginContainer">
+        <button id="loginBtn" class="pill-button" onclick="login()">Iniciar sesión</button>
+      </div>
     </div>
-  </header>
+    <div id="right-controls">
+      <button class="pill-button" onclick="toggleAbout()">Sobre nosotros</button>
+    </div>
+  </div>
+
+  <div class="title">Proyecto Arinc 429</div>
 
   <div class="content">
     <button class="main-button" onclick="location.href='arinc429.html'">¿De qué se trata nuestro proyecto?</button>
@@ -144,18 +166,17 @@
   </div>
 
   <div id="aboutCard">
+    <div class="close-btn" onclick="toggleAbout()">&times;</div>
     <img src="inac.jpg" alt="Foto institucional">
     <div id="aboutText"></div>
   </div>
 
   <script>
-    // Mostrar/Ocultar tarjeta "Sobre nosotros"
     function toggleAbout() {
       const card = document.getElementById('aboutCard');
       card.classList.toggle('open');
     }
 
-    // Simular login simple
     function login() {
       const username = prompt("Ingrese su nombre de usuario:");
       if (username) {
@@ -164,33 +185,29 @@
       }
     }
 
+    function logout() {
+      localStorage.removeItem("currentUser");
+      updateUI();
+    }
+
     function updateUI() {
       const user = localStorage.getItem("currentUser");
-      const loginBtn = document.getElementById("loginBtn");
-      const greeting = document.getElementById("greeting");
+      const loginContainer = document.getElementById("loginContainer");
 
       if (user) {
-        loginBtn.style.display = "none";
-        greeting.style.display = "block";
-        greeting.textContent = `Hola, ${user}!`;
+        loginContainer.innerHTML = `
+          <div class="dropdown">
+            <button class="pill-button">Hola, ${user}!</button>
+            <div class="dropdown-content">
+              <div><strong>Hola, ${user}</strong></div>
+              <div onclick="logout()">Cerrar sesión</div>
+            </div>
+          </div>`;
+      } else {
+        loginContainer.innerHTML = `<button id="loginBtn" class="pill-button" onclick="login()">Iniciar sesión</button>`;
       }
     }
 
-    // Ocultar encabezado al hacer scroll
-    let lastScrollTop = 0;
-    window.addEventListener("scroll", function() {
-      const header = document.getElementById("header");
-      const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-
-      if (currentScroll > lastScrollTop) {
-        header.style.top = "-80px";
-      } else {
-        header.style.top = "0";
-      }
-      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-    });
-
-    // Cargar estado inicial
     window.onload = updateUI;
   </script>
 </body>
