@@ -12,9 +12,19 @@
       margin: 0;
       font-family: 'Roboto', sans-serif;
       transition: background-image 0.5s ease-in-out;
-      background: url('arinc429.jpg') no-repeat center center fixed;
+      background: url('arinc429.jpg') no-repeat center center;
+      background-attachment: fixed;
       background-size: cover;
       backdrop-filter: brightness(0.95);
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      z-index: -1;
     }
 
     .top-bar {
@@ -46,30 +56,30 @@
         position: relative;
         display: inline-block;
     }
-      
+
     .dropdown:hover .dropdown-content {
         display: block;
     }
-      
+
     .dropdown-content {
         display: none;
         position: absolute;
-        top: 100%; /* justo debajo del botón */
+        top: 100%;
         left: 0;
         background-color: white;
         min-width: 160px;
-        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+        box-shadow: 0px 8px 16px rgba(0,0,0,0);
         border-radius: 8px;
         z-index: 1000;
-        overflow: hidden; /* para evitar bordes que sobresalgan */
+        overflow: hidden;
     }
-      
+
     .dropdown-content div {
         padding: 10px;
         border-bottom: 1px solid #eee;
         cursor: pointer;
     }
-      
+
     .dropdown-content div:hover {
         background-color: #f0f0f0;
     }
@@ -89,7 +99,7 @@
       background-color: rgba(255, 255, 255, 0.75);
       padding: 20px 40px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0);
     }
 
     .content {
@@ -124,13 +134,14 @@
       width: 35%;
       height: 100%;
       background: white;
-      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0);
       padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       transition: right 0.5s ease-in-out;
       z-index: 999;
+      max-height: 100vh;
     }
 
     #aboutCard.open {
@@ -138,11 +149,11 @@
     }
 
     #aboutCard img {
-        max-width: 160px;        /* Más pequeño que antes */
-        width: auto;             /* No forzamos al 100% */
+        max-width: 160px;
+        width: auto;
         height: auto;
         display: block;
-        margin: 0 auto 15px auto; /* Centrado horizontal y espacio abajo */
+        margin: 0 auto 15px auto;
     }
 
     #aboutText {
@@ -151,10 +162,10 @@
         overflow-y: auto;
         font-size: 14px;
         color: #333;
-        padding: 0 15px 20px 15px; /* Espaciado interno en laterales y abajo */
+        padding: 0 15px 20px 15px;
         box-sizing: border-box;
-        text-align: justify; /* Justifica el texto */
-        line-height: 1.5;     /* Mejora la lectura */
+        text-align: justify;
+        line-height: 1.5;
     }
 
     .close-btn {
@@ -163,6 +174,50 @@
       cursor: pointer;
       color: #333;
       margin-bottom: 10px;
+    }
+
+    /* ======= MEDIA QUERY PARA MÓVILES ======= */
+    @media (max-width: 768px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+      }
+
+      .title {
+        font-size: 32px;
+        padding: 15px 20px;
+        text-align: center;
+      }
+
+      .title-container {
+        margin-top: 30px;
+        margin-bottom: 20px;
+        padding: 0 10px;
+      }
+
+      .main-button {
+        width: 90%;
+        font-size: 14px;
+        padding: 12px;
+      }
+
+      #aboutCard {
+        width: 100%;
+        right: -100%;
+      }
+
+      #aboutCard.open {
+        right: 0;
+      }
+
+      #aboutText {
+        font-size: 13px;
+      }
+
+      .dropdown-content {
+        min-width: 100%;
+      }
     }
   </style>
 </head>
