@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explicación Técnica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      line-height: 1.6;
+      color: #222;
+      background-color: #f8f8f8;
+    }
+    h1, h2, h3 {
+      color: #003366;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 8px 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #e0e0e0;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>Explicación Técnica</h1>
+
+  <h2>Introducción</h2>
+  <p>El protocolo ARINC 429 (Aeronautical Radio Incorporated 429) es un estándar de comunicación punto a punto utilizado principalmente en aeronaves comerciales para la transmisión de datos entre sistemas electrónicos. Fue desarrollado por la organización ARINC en la década de 1970 y es ampliamente utilizado por fabricantes como Boeing, Airbus, Lockheed Martin y otros, siendo uno de los protocolos más robustos y confiables en la aviación.</p>
+
+  <h2>Formato de Palabra ARINC 429</h2>
+  <p>Cada palabra transmitida tiene una longitud de 32 bits y está estructurada de la siguiente manera:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Bits</th>
+        <th>Campo</th>
+        <th>Descripción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Parity</td>
+        <td>Bit de paridad impar</td>
+      </tr>
+      <tr>
+        <td>2–9</td>
+        <td>Data</td>
+        <td>Campo de datos (dependiendo del tipo: BNR, BCD, discreto, etc.)</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Sign/Status Matrix (SSM)</td>
+        <td>Indica el estado o la validez del dato</td>
+      </tr>
+      <tr>
+        <td>11–29</td>
+        <td>Data</td>
+        <td>Campo principal de datos</td>
+      </tr>
+      <tr>
+        <td>30–31</td>
+        <td>SDI</td>
+        <td>Identificación del origen del sistema</td>
+      </tr>
+      <tr>
+        <td>32</td>
+        <td>Label</td>
+        <td>Etiqueta (identifica qué tipo de dato es)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Codificaciones de Datos</h2>
+  <h3>BNR (Binary Number Representation)</h3>
+  <p>Este formato se utiliza para representar cantidades continuas como velocidad, altitud o temperatura. El valor se transmite en binario puro y tiene una resolución y escala definida por la etiqueta. Es ideal para datos que requieren una alta precisión.</p>
+
+  <h3>BCD (Binary Coded Decimal)</h3>
+  <p>Este formato se utiliza para representar datos numéricos decimales como códigos de transpondedor, altitud en pies, etc. Cada dígito decimal se codifica como su equivalente binario de 4 bits.</p>
+
+  <h2>Funcionamiento</h2>
+  <p>Un sistema emisor transmite datos continuamente por el bus ARINC 429, incluso si no hay cambios en el valor. Esto asegura que los receptores tengan siempre datos actualizados. Los receptores verifican la validez de la palabra mediante el bit de paridad y pueden descartar información inválida o identificar errores en la transmisión.</p>
+
+  <h2>Frecuencias y Capa Física</h2>
+  <p>El protocolo opera con una señal diferencial balanceada con un voltaje típico de ±10 V, transmitida mediante líneas trenzadas blindadas. Esta señal es inmune a interferencias electromagnéticas, algo esencial en entornos aeronáuticos.</p>
+  <p>Las velocidades de transmisión son:</p>
+  <ul>
+    <li>12.5 kbps: usada en sistemas donde no se requiere alta velocidad.</li>
+    <li>100 kbps: usada en la mayoría de las aplicaciones modernas por su mayor velocidad.</li>
+  </ul>
+
+  <h2>Etiquetas ARINC 429</h2>
+  <p>Las etiquetas son valores de 8 bits (normalmente expresados en octal) que identifican el contenido del mensaje. Algunos ejemplos comunes:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Etiqueta (Octal)</th>
+        <th>Descripción</th>
+        <th>Formato</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>203</td>
+        <td>Velocidad Vertical</td>
+        <td>BNR</td>
+      </tr>
+      <tr>
+        <td>212</td>
+        <td>Velocidad Indicada</td>
+        <td>BNR</td>
+      </tr>
+      <tr>
+        <td>300</td>
+        <td>Posición Latitude</td>
+        <td>BNR</td>
+      </tr>
+      <tr>
+        <td>301</td>
+        <td>Posición Longitude</td>
+        <td>BNR</td>
+      </tr>
+      <tr>
+        <td>271</td>
+        <td>Código de Altitud del Transpondedor</td>
+        <td>BCD</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Topología y Arquitectura del Sistema</h2>
+  <p>ARINC 429 emplea una arquitectura de comunicación de tipo simplex, lo que significa que un canal permite solo la transmisión de un emisor hacia uno o varios receptores. Aunque no existe retroalimentación en el mismo canal, se pueden usar canales separados si se necesita comunicación bidireccional.</p>
+  <p>Un transmisor puede estar conectado a múltiples receptores (hasta 20), pero un receptor solo puede recibir datos de un transmisor específico por línea. Este diseño reduce interferencias y aumenta la confiabilidad del sistema.</p>
+
+  <h2>Aplicaciones en Aviónica</h2>
+  <p>El protocolo ARINC 429 es fundamental en la integración de sistemas como:</p>
+  <ul>
+    <li>FMS (Flight Management System)</li>
+    <li>IRS (Inertial Reference System)</li>
+    <li>EFIS (Electronic Flight Instrument System)</li>
+    <li>TCAS (Traffic Collision Avoidance System)</li>
+    <li>GPS y otros sensores de navegación</li>
+    <li>Controladores de motor y datos de mantenimiento</li>
+  </ul>
+
+  <h2>Ventajas y Limitaciones</h2>
+  <h3>Ventajas:</h3>
+  <ul>
+    <li>Alta confiabilidad y robustez</li>
+    <li>Simplicidad de implementación</li>
+    <li>Bajo costo de mantenimiento</li>
+    <li>Amplia compatibilidad entre fabricantes</li>
+  </ul>
+
+  <h3>Limitaciones:</h3>
+  <ul>
+    <li>Comunicación unidireccional (simplex)</li>
+    <li>Velocidad limitada en comparación con protocolos modernos</li>
+    <li>No apto para grandes volúmenes de datos multimedia o complejos</li>
+  </ul>
+</body>
+</html>
+

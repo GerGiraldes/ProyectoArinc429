@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explicación Básica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #003366;
+        }
+        h2 {
+            color: #003366;
+        }
+        p {
+            line-height: 1.6;
+        }
+        .video-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Explicación Básica</h1>
+    <p>
+        ARINC 429 es un estándar de comunicación usado principalmente en aviones comerciales para el intercambio de datos digitales entre los distintos sistemas electrónicos a bordo. Aunque no es un bus de datos convencional porque solo permite enviar datos en un único sentido, es ampliamente utilizado por fabricantes como Boeing, Airbus y otros, ya que garantiza compatibilidad entre equipos de distintos fabricantes.
+    </p>
+
+    <h2>¿Para qué sirve?</h2>
+    <p>
+        Este protocolo permite que la información viaje de un equipo a otro dentro del avión de forma ordenada y segura. Por ejemplo, datos como la altitud seleccionada, rumbo magnético o presión de neumáticos se envían mediante este sistema.
+    </p>
+
+    <h2>¿Cómo funciona?</h2>
+    <p>
+        ARINC 429 transmite mensajes llamados "palabras" que siempre tienen una longitud de 32 bits. Cada palabra contiene información estructurada de una forma específica: parte de esos bits identifican de qué se trata la información (como altitud o velocidad) y otra parte contiene el dato en sí.
+    </p>
+    <p>
+        Los mensajes van de un único transmisor hasta un máximo de 20 receptores, y se pueden transmitir de forma periódica o cuando sea necesario. Además, las palabras incluyen un mecanismo de control de errores por paridad para asegurar que los datos lleguen correctamente.
+    </p>
+
+    <h2>Velocidad y Frecuencia</h2>
+    <p>
+        Dependiendo de la importancia de la información, cada dato se transmite en intervalos de tiempo específicos. Por ejemplo, un dato crítico puede enviarse cada 50 milisegundos y otro menos urgente cada 500 milisegundos. Las velocidades típicas de transmisión son de 100 kbps (alta velocidad) o de 12 a 14.5 kbps (baja velocidad).
+    </p>
+
+    <h2>Codificación de Datos</h2>
+    <p>
+        Los datos pueden transmitirse de varias formas:
+    </p>
+    <ul>
+        <li><strong>BNR (Binario):</strong> Para valores numéricos continuos como altitud o temperatura.</li>
+        <li><strong>BCD (Decimal Codificado en Binario):</strong> Para valores numéricos decimales, como grados de rumbo.</li>
+        <li><strong>Datos Discretos:</strong> Para valores de encendido/apagado, banderas o estados.</li>
+    </ul>
+
+    <h2>¿Por qué es importante?</h2>
+    <p>
+        Aunque no es obligatorio que todos los fabricantes lo usen, diseñar equipos que cumplan con ARINC 429 permite que distintas marcas de sistemas puedan comunicarse correctamente dentro de un avión, asegurando la interoperabilidad y seguridad en vuelo.
+    </p>
+
+    <div class="video-container">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/1CsPSoqVtKE" 
+        title="Video explicativo de ARINC 429" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+</body>
+</html>
