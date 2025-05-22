@@ -252,16 +252,16 @@
       const card = document.getElementById('aboutCard');
       card.classList.toggle('open');
     }
-  
+
     function logout() {
       localStorage.removeItem("currentUser");
       location.reload();
     }
-  
+
     function updateUI() {
       const user = localStorage.getItem("currentUser");
       const loginContainer = document.getElementById("loginContainer");
-  
+
       if (user) {
         loginContainer.innerHTML = `
           <div class="dropdown">
@@ -272,18 +272,20 @@
             </div>
           </div>`;
       } else {
-        loginContainer.innerHTML = `
-          <button id="loginBtn" class="pill-button" onclick="location.href='login.html'">Iniciar sesión</button>`;
+        loginContainer.innerHTML = `<button id="loginBtn" class="pill-button" onclick="location.href='login.html'">Iniciar sesión</button>`;
       }
     }
-  
+
     function changeBackground(image) {
       document.body.style.backgroundImage = `url('${image}')`;
     }
-  
+
     function resetBackground() {
       document.body.style.backgroundImage = "url('./images/arinc429.jpg')";
     }
+
+    window.onload = updateUI;
   </script>
+
 </body>
 </html>
