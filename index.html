@@ -304,27 +304,6 @@
     function asignarEventosSegunDispositivo() {
       const esMovil = esDispositivoMovil();
       const botones = document.querySelectorAll(".main-button");
-  
-      botones.forEach(boton => {
-        const id = boton.id;
-        const imagen = esMovil ? imagenesMovil[id] : imagenesDesktop[id];
-  
-        if (esMovil) {
-          // En móvil: mostrar imagen al hacer clic antes de redirigir
-          boton.addEventListener("click", (e) => {
-            e.preventDefault();
-            changeBackground(imagen);
-            setTimeout(() => {
-              const destino = boton.getAttribute("onclick").split("'")[1];
-              window.location.href = destino;
-            }, 500);
-          });
-        } else {
-          // En computadora: cambiar imagen con hover
-          boton.addEventListener("mouseover", () => changeBackground(imagen));
-          boton.addEventListener("mouseout", resetBackground);
-        }
-      });
     }
   
     window.onload = () => {
