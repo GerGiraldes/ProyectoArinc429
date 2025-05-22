@@ -1,76 +1,167 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explicación Básica</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 20px;
-            color: #333;
-        }
-        h1 {
-            color: #003366;
-        }
-        h2 {
-            color: #003366;
-        }
-        p {
-            line-height: 1.6;
-        }
-        .video-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 30px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explicación Básica</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    h2, h3 {
+      color: #003366;
+    }
+
+    p {
+      margin-bottom: 15px;
+    }
+
+    ul {
+      margin-bottom: 20px;
+    }
+
+    /* Menú lateral */
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 250px;
+      height: 100%;
+      background-color: white;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+      padding: 30px 20px;
+      transition: left 0.3s ease;
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-top: 80px;
+    }
+
+    .side-menu.open {
+      left: 0;
+    }
+
+    .side-menu a {
+      text-decoration: none;
+      color: #1f3c88;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 12px 16px;
+      border-radius: 8px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .side-menu a:hover {
+      background-color: #1f3c88;
+      color: white;
+    }
+
+    /* Barra superior */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      background-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 1001;
+    }
+
+    .menu-icon {
+      position: absolute;
+      left: 20px;
+      font-size: 28px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #1f3c88;
+      z-index: 1002;
+    }
+
+    .title-bar {
+      font-size: 36px;
+      color: #1f3c88;
+      font-weight: bold;
+    }
+
+    .video-container {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Explicación Básica</h1>
+  <!-- Menú lateral -->
+  <div class="side-menu" id="sideMenu">
+    <a href="index.html">Inicio</a>
+    <a href="arinc429.html">De que trata nuestro proyecto</a>
+    <a href="doñaRosa.html">Explicación básica</a>
+    <a href="ingeniero.html">Explicación técnica</a>
+  </div>
+
+  <!-- Barra superior -->
+  <div class="top-bar">
+    <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    <span class="title-bar">Explicación Básica</span>
+  </div>
+
+  <div style="margin: 30px 20px;">
+
+    <h2>¿Qué es ARINC 429?</h2>
     <p>
-        ARINC 429 es un estándar de comunicación usado principalmente en aviones comerciales para el intercambio de datos digitales entre los distintos sistemas electrónicos a bordo. Aunque no es un bus de datos convencional porque solo permite enviar datos en un único sentido, es ampliamente utilizado por fabricantes como Boeing, Airbus y otros, ya que garantiza compatibilidad entre equipos de distintos fabricantes.
+        ARINC 429 es el sistema que usan las aeronaves para que sus distintas partes electrónicas puedan comunicarse entre sí. Por ejemplo, así se envían datos como la altitud, el rumbo o la velocidad entre los instrumentos del avión.
     </p>
 
-    <h2>¿Para qué sirve?</h2>
+    <h2>¿Para qué se usa?</h2>
     <p>
-        Este protocolo permite que la información viaje de un equipo a otro dentro del avión de forma ordenada y segura. Por ejemplo, datos como la altitud seleccionada, rumbo magnético o presión de neumáticos se envían mediante este sistema.
+        Sirve para enviar información de forma segura y ordenada, evitando interferencias, de un equipo a otro dentro del avión. Así, todo funciona bien y los pilotos reciben los datos correctos.
     </p>
 
     <h2>¿Cómo funciona?</h2>
     <p>
-        ARINC 429 transmite mensajes llamados "palabras" que siempre tienen una longitud de 32 bits. Cada palabra contiene información estructurada de una forma específica: parte de esos bits identifican de qué se trata la información (como altitud o velocidad) y otra parte contiene el dato en sí.
+        ARINC 429 envía mensajes que siempre tienen 32 “bits” . Esos bits dicen qué tipo de dato se está mandando (como rumbo, altitud, etc) y cuál es su valor.
     </p>
     <p>
-        Los mensajes van de un único transmisor hasta un máximo de 20 receptores, y se pueden transmitir de forma periódica o cuando sea necesario. Además, las palabras incluyen un mecanismo de control de errores por paridad para asegurar que los datos lleguen correctamente.
-    </p>
-
-    <h2>Velocidad y Frecuencia</h2>
-    <p>
-        Dependiendo de la importancia de la información, cada dato se transmite en intervalos de tiempo específicos. Por ejemplo, un dato crítico puede enviarse cada 50 milisegundos y otro menos urgente cada 500 milisegundos. Las velocidades típicas de transmisión son de 100 kbps (alta velocidad) o de 12 a 14.5 kbps (baja velocidad).
+        Cada equipo puede enviar datos a muchos otros receptores(hasta 20), y los datos pueden enviarse muy seguido o solo cuando haga falta. Además, este sistema tiene un control que revisa si los datos llegan bien.
     </p>
 
-    <h2>Codificación de Datos</h2>
+    <h2>¿Qué tan rápido trabaja?</h2>
     <p>
-        Los datos pueden transmitirse de varias formas:
+        Algunos datos importantes se mandan muy seguido, por ejemplo cada 50 milisegundos. Otros menos urgentes, cada medio segundo(500 milisegundos). La velocidad de transmisión puede ser rápida (100 kbps) o más lenta (12-14.5 kbps).
+    </p>
+
+    <h2>¿Cómo se escriben los datos?</h2>
+    <p>
+        Los datos se mandan en diferentes formas según el tipo:
     </p>
     <ul>
-        <li><strong>BNR (Binario):</strong> Para valores numéricos continuos como altitud o temperatura.</li>
-        <li><strong>BCD (Decimal Codificado en Binario):</strong> Para valores numéricos decimales, como grados de rumbo.</li>
-        <li><strong>Datos Discretos:</strong> Para valores de encendido/apagado, banderas o estados.</li>
+        <li><strong>BNR:</strong> Para valores como altitud o temperatura.</li>
+        <li><strong>BCD:</strong> Para números con decimales, como los grados del rumbo.</li>
+        <li><strong>Discretos:</strong> Para cosas que están prendidas o apagadas, como interruptores.</li>
     </ul>
 
-    <h2>¿Por qué es importante?</h2>
+    <h2>¿Por qué es tan usado?</h2>
     <p>
-        Aunque no es obligatorio que todos los fabricantes lo usen, diseñar equipos que cumplan con ARINC 429 permite que distintas marcas de sistemas puedan comunicarse correctamente dentro de un avión, asegurando la interoperabilidad y seguridad en vuelo.
+        Porque hace que los equipos de distintas funciones y marcas puedan trabajar juntos dentro del avión. Gracias a esto, los sistemas son más seguros y compatibles entre sí, algo muy importante para volar.
     </p>
 
-    <div class="video-container">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/1CsPSoqVtKE" 
-        title="Video explicativo de ARINC 429" frameborder="0" allowfullscreen></iframe>
-    </div>
+  <script>
+    function toggleMenu() {
+      const sideMenu = document.getElementById('sideMenu');
+      sideMenu.classList.toggle('open');
+    }
+  </script>
 
 </body>
 </html>

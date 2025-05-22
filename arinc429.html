@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>De que trata nuestro proyecto</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    h2, h3 {
+      color: #003366;
+    }
+
+    p {
+      margin-bottom: 15px;
+    }
+
+    ul {
+      margin-bottom: 20px;
+    }
+
+    /* Menú lateral */
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 250px;
+      height: 100%;
+      background-color: white;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+      padding: 30px 20px;
+      transition: left 0.3s ease;
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-top: 80px;
+    }
+
+    .side-menu.open {
+      left: 0;
+    }
+
+    .side-menu a {
+      text-decoration: none;
+      color: #1f3c88;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 12px 16px;
+      border-radius: 8px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .side-menu a:hover {
+      background-color: #1f3c88;
+      color: white;
+    }
+
+    /* Barra superior */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      background-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 1001;
+    }
+
+    .menu-icon {
+      position: absolute;
+      left: 20px;
+      font-size: 28px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #1f3c88;
+      z-index: 1002;
+    }
+
+    .title-bar {
+      font-size: 36px;
+      color: #1f3c88;
+      font-weight: bold;
+    }
+
+    .video-container {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menú lateral -->
+  <div class="side-menu" id="sideMenu">
+    <a href="index.html">Inicio</a>
+    <a href="arinc429.html">De que trata nuestro proyecto</a>
+    <a href="doñaRosa.html">Explicación básica</a>
+    <a href="ingeniero.html">Explicación técnica</a>
+  </div>
+
+  <!-- Barra superior -->
+  <div class="top-bar">
+    <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    <span class="title-bar">De que Trata Nuestro Proyecto</span>
+  </div>
+
+  <div style="margin: 30px 20px;">
+
+      <main>
+        <section>
+          <h2>¿De qué trata este proyecto?</h2>
+          <p></p>
+        </section>
+    
+        <section>
+          <p>El sistema está compuesto por varios módulos conectados entre sí:</p>
+          <ol>
+            <li><strong> Interfaz Web:</strong> El usuario ingresa una dirección deseada (por ejemplo: 270° Oeste) directamente desde una página web visual.</li>
+            <li><strong> Servidor:</strong> Esa información es enviada a un servidor local, que la procesa y la prepara para transmitirla.</li>
+            <li><strong> Arduino + Transceptor ARINC 429:</strong> Un microcontrolador Arduino recibe la dirección desde el servidor, la codifica según el protocolo ARINC 429 y la transmite mediante un <em>transceptor especializado</em>.</li>
+            <li><strong> Instrumento Real:</strong> Finalmente, un instrumento físico (una brújula electrónica real de avión) recibe esta señal y cambia su lectura según el valor ingresado desde la web.</li>
+          </ol>
+        </section>
+    
+        <section>
+          <h2>¿Qué es ARINC 429?</h2>
+          <p><strong>ARINC 429</strong> es un protocolo de comunicación utilizado en aeronaves reales. Se encarga de transmitir información crítica entre instrumentos de vuelo, garantizando precisión, velocidad y confiabilidad. Este proyecto lo utiliza para simular una integración <em>casi real</em> de una cabina de avión.</p>
+        </section>
+    
+        <section>
+          <h2>¿Por qué es interesante?</h2>
+          <p>Este proyecto demuestra cómo una tecnología usada en la aviación real puede ser simulada, comprendida y controlada desde herramientas simples como una página web. Es una prueba clara de cómo el mundo digital se conecta con el mundo físico.</p>
+          <p>Además, permite:</p>
+          <ul>
+            <li>Visualizar cómo funcionan los sistemas embarcados en aeronaves.</li>
+            <li>Interactuar de forma remota con instrumentos reales.</li>
+            <li>Aprender sobre codificación, protocolos de comunicación y sistemas distribuidos.</li>
+          </ul>
+        </section>
+    
+        <section>
+          <h2>Posibilidades Futuras</h2>
+          <p>Este concepto se puede ampliar fácilmente para simular más instrumentos como el altímetro, velocímetro o horizonte artificial. Incluso se podría integrar a un simulador de vuelo completo, con retroalimentación visual y física.</p>
+        </section>
+      </main>
+    
+      <footer>
+        <p>Desarrollado por un estudiante de INAC CIATA</p>
+      </footer>
+    
+
+  <script>
+    function toggleMenu() {
+      const sideMenu = document.getElementById('sideMenu');
+      sideMenu.classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>
