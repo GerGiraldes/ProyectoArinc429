@@ -15,7 +15,7 @@
       line-height: 1.6;
     }
 
-    h2, h3 {
+    h2 {
       color: #003366;
     }
 
@@ -27,7 +27,6 @@
       margin-bottom: 20px;
     }
 
-    /* Menú lateral */
     .side-menu {
       position: fixed;
       top: 0;
@@ -36,13 +35,12 @@
       height: 100%;
       background-color: white;
       box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-      padding: 30px 20px;
       transition: left 0.3s ease;
-      z-index: 900;
+      z-index: 1100;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      padding-top: 80px;
+      padding: 80px 20px 20px;
     }
 
     .side-menu.open {
@@ -64,7 +62,6 @@
       color: white;
     }
 
-    /* Barra superior */
     .top-bar {
       display: flex;
       align-items: center;
@@ -72,8 +69,11 @@
       padding: 12px 20px;
       background-color: rgba(255, 255, 255, 0.95);
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      position: relative;
-      z-index: 1001;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1200;
     }
 
     .menu-icon {
@@ -84,11 +84,11 @@
       background: none;
       border: none;
       color: #1f3c88;
-      z-index: 1002;
+      z-index: 1201;
     }
 
     .title-bar {
-      font-size: 36px;
+      font-size: 28px;
       color: #1f3c88;
       font-weight: bold;
     }
@@ -98,6 +98,10 @@
       justify-content: center;
       margin: 30px 0;
     }
+
+    .content {
+      margin: 100px 20px 30px;
+    }
   </style>
 </head>
 <body>
@@ -105,7 +109,6 @@
   <!-- Menú lateral -->
   <div class="side-menu" id="sideMenu">
     <a href="index.html">Inicio</a>
-    <a href="arinc429.html">De que trata nuestro proyecto</a>
     <a href="doñaRosa.html">Explicación básica</a>
     <a href="ingeniero.html">Explicación técnica</a>
   </div>
@@ -116,46 +119,45 @@
     <span class="title-bar">Explicación Básica</span>
   </div>
 
-  <div style="margin: 30px 20px;">
-
+  <!-- Contenido -->
+  <div class="content">
     <h2>¿Qué es ARINC 429?</h2>
     <p>
-        ARINC 429 es el sistema que usan las aeronaves para que sus distintas partes electrónicas puedan comunicarse entre sí. Por ejemplo, así se envían datos como la altitud, el rumbo o la velocidad entre los instrumentos del avión.
+      ARINC 429 es el sistema que usan las aeronaves para que sus distintas partes electrónicas puedan comunicarse entre sí. Por ejemplo, así se envían datos como la altitud, el rumbo o la velocidad entre los instrumentos del avión.
     </p>
 
     <h2>¿Para qué se usa?</h2>
     <p>
-        Sirve para enviar información de forma segura y ordenada, evitando interferencias, de un equipo a otro dentro del avión. Así, todo funciona bien y los pilotos reciben los datos correctos.
+      Sirve para enviar información de forma segura y ordenada, evitando interferencias, de un equipo a otro dentro del avión. Así, todo funciona bien y los pilotos reciben los datos correctos.
     </p>
 
     <h2>¿Cómo funciona?</h2>
     <p>
-        ARINC 429 envía mensajes que siempre tienen 32 “bits” . Esos bits dicen qué tipo de dato se está mandando (como rumbo, altitud, etc) y cuál es su valor.
+      ARINC 429 envía mensajes que siempre tienen 32 “bits”. Esos bits dicen qué tipo de dato se está mandando (como rumbo, altitud, etc) y cuál es su valor.
     </p>
     <p>
-        Cada equipo puede enviar datos a muchos otros receptores(hasta 20), y los datos pueden enviarse muy seguido o solo cuando haga falta. Además, este sistema tiene un control que revisa si los datos llegan bien.
+      Cada equipo puede enviar datos a muchos otros receptores (hasta 20), y los datos pueden enviarse muy seguido o solo cuando haga falta. Además, este sistema tiene un control que revisa si los datos llegan bien.
     </p>
 
     <h2>¿Qué tan rápido trabaja?</h2>
     <p>
-        Algunos datos importantes se mandan muy seguido, por ejemplo cada 50 milisegundos. Otros menos urgentes, cada medio segundo(500 milisegundos). La velocidad de transmisión puede ser rápida (100 kbps) o más lenta (12-14.5 kbps).
+      Algunos datos importantes se mandan muy seguido, por ejemplo cada 50 milisegundos. Otros menos urgentes, cada medio segundo (500 milisegundos). La velocidad de transmisión puede ser rápida (100 kbps) o más lenta (12-14.5 kbps).
     </p>
 
     <h2>¿Cómo se escriben los datos?</h2>
     <p>
-        Los datos se mandan en diferentes formas según el tipo:
+      Los datos se mandan en diferentes formas según el tipo:
     </p>
     <ul>
-        <li><strong>BNR:</strong> Para valores como altitud o temperatura.</li>
-        <li><strong>BCD:</strong> Para números con decimales, como los grados del rumbo.</li>
-        <li><strong>Discretos:</strong> Para cosas que están prendidas o apagadas, como interruptores.</li>
+      <li><strong>BNR:</strong> Para valores como altitud o temperatura.</li>
+      <li><strong>BCD:</strong> Para números con decimales, como los grados del rumbo.</li>
+      <li><strong>Discretos:</strong> Para cosas que están prendidas o apagadas, como interruptores.</li>
     </ul>
 
     <h2>¿Por qué es tan usado?</h2>
     <p>
-        Porque hace que los equipos de distintas funciones y marcas puedan trabajar juntos dentro del avión. Gracias a esto, los sistemas son más seguros y compatibles entre sí, algo muy importante para volar.
+      Porque hace que los equipos de distintas funciones y marcas puedan trabajar juntos dentro del avión. Gracias a esto, los sistemas son más seguros y compatibles entre sí, algo muy importante para volar.
     </p>
-
   <script>
     function toggleMenu() {
       const sideMenu = document.getElementById('sideMenu');

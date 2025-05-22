@@ -252,16 +252,16 @@
       const card = document.getElementById('aboutCard');
       card.classList.toggle('open');
     }
-
+  
     function logout() {
       localStorage.removeItem("currentUser");
       location.reload();
     }
-
+  
     function updateUI() {
       const user = localStorage.getItem("currentUser");
       const loginContainer = document.getElementById("loginContainer");
-
+  
       if (user) {
         loginContainer.innerHTML = `
           <div class="dropdown">
@@ -276,16 +276,66 @@
           <button id="loginBtn" class="pill-button" onclick="location.href='login.html'">Iniciar sesión</button>`;
       }
     }
-
+  
     function changeBackground(image) {
       document.body.style.backgroundImage = `url('${image}')`;
     }
-
+  
     function resetBackground() {
       document.body.style.backgroundImage = "url('./images/arinc429.jpg')";
     }
-
-    window.onload = updateUI;
+  
+    function esDispositivoMovil() {
+      return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+  
+    const imagenesDesktop = {
+      "btn-proyecto": "./images/boeing777.jpeg",
+      "btn-basico": "./images/doñaRosaMejora.jpeg",
+      "btn-tecnico": "./images/ingeniero.jpg"
+    };
+  
+    const imagenesMovil = {
+      "btn-proyecto": "./images/arinc429mobile.jpg",
+      "btn-basico": "./images/doñaRosaMobile.jpg",
+      "btn-tecnico": "./images/ingenieroMobile.jpg"
+    };
+  
+    function asignarEventosSegunDispositivo() {
+      const esMovil = esDispositivoMovil();
+      const botones = document.querySelectorAll(".main-button");
+  
+      botones.forEach(boton => {
+        const id = boton.id;
+        const imagen = esMovil ? imagenesMovil[id] : imagenesDesktop[id];
+  
+        if (esMovil) {
+          // En móvil: mostrar imagen al hacer clic antes de redirigir
+          boton.addEventListener("click", (e) => {
+            e.preventDefault();
+            changeBackground(imagen);
+            setTimeout(() => {
+              const destino = boton.getAttribute("onclick").split("'")[1];
+              window.location.href = destino;
+            }, 500);
+          });
+        } else {
+          // En computadora: cambiar imagen con hover
+          boton.addEventListener("mouseover", () => changeBackground(imagen));
+          boton.addEventListener("mouseout", resetBackground);
+        }
+      });
+    }
+  
+    window.onload = () => {
+      updateUI();
+  
+      if (esDispositivoMovil()) {
+        document.body.style.backgroundImage = "url('./images/boeing777.jpeg')";
+      }
+  
+      asignarEventosSegunDispositivo();
+    };
   </script>
 </body>
 </html>
