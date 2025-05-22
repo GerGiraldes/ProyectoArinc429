@@ -280,41 +280,6 @@
     function changeBackground(image) {
       document.body.style.backgroundImage = `url('${image}')`;
     }
-  
-    function resetBackground() {
-      document.body.style.backgroundImage = "url('./images/arinc429.jpg')";
-    }
-  
-    function esDispositivoMovil() {
-      return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    }
-  
-    const imagenesDesktop = {
-      "btn-proyecto": "./images/boeing777.jpeg",
-      "btn-basico": "./images/doñaRosaMejora.jpeg",
-      "btn-tecnico": "./images/ingeniero.jpg"
-    };
-  
-    const imagenesMovil = {
-      "btn-proyecto": "./images/arinc429mobile.jpg",
-      "btn-basico": "./images/doñaRosaMobile.jpg",
-      "btn-tecnico": "./images/ingenieroMobile.jpg"
-    };
-  
-    function asignarEventosSegunDispositivo() {
-      const esMovil = esDispositivoMovil();
-      const botones = document.querySelectorAll(".main-button");
-    }
-  
-    window.onload = () => {
-      updateUI();
-  
-      if (esDispositivoMovil()) {
-        document.body.style.backgroundImage = "url('./images/boeing777.jpeg')";
-      }
-  
-      asignarEventosSegunDispositivo();
-    };
   </script>
 </body>
 </html>
