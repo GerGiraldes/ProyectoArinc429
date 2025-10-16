@@ -1,0 +1,227 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperatura del carburador</title>
+    <!-- Usar ruta explícita relativa -->
+    <link rel="stylesheet" href="../../../mainStyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  </head>
+<body>
+  <div class="title">Temperatura del carburador</div>
+
+  <canvas id="tacometro" width="390" height="390"></canvas>
+
+  <input type="range" id="control" min="-30" max="30" step="1" value="0" />
+  <br />
+  <div id="valor" class="valor-box">0 °C</div>
+
+<script>
+const canvas = document.getElementById("tacometro");
+const ctx = canvas.getContext("2d");
+const slider = document.getElementById("control");
+const valorBox = document.getElementById("valor");
+
+let val = 0;
+const minVal = -30, maxVal = 30;
+const cx = 200, cy = 200;
+const radius = 130;
+const yDiv = cy + 35; // línea blanca
+
+const span = Math.PI * 2 / 3;
+function valToAngle(v) {
+  const start = -Math.PI / 2 - span / 2;
+  return start + ((v - minVal) / (maxVal - minVal)) * span;
+}
+
+function dibujarInstrumento(valor) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // === Carcasa octogonal ===
+  const gradCarc = ctx.createLinearGradient(30, 30, 370, 370);
+  gradCarc.addColorStop(0, "#777");
+  gradCarc.addColorStop(0.5, "#555");
+  gradCarc.addColorStop(1, "#333");
+
+  ctx.beginPath();
+  ctx.moveTo(90, 30);
+  ctx.lineTo(310, 30);
+  ctx.lineTo(370, 90);
+  ctx.lineTo(370, 310);
+  ctx.lineTo(310, 370);
+  ctx.lineTo(90, 370);
+  ctx.lineTo(30, 310);
+  ctx.lineTo(30, 90);
+  ctx.closePath();
+  ctx.fillStyle = gradCarc;
+  ctx.shadowColor = "rgba(0,0,0,0.6)";
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+  ctx.fill();
+  ctx.shadowColor = "transparent";
+
+  // === Orificios ===
+  const orificios = [[70, 70], [330, 70], [330, 330], [70, 330]];
+  orificios.forEach(([x, y]) => {
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.4)";
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, 2 * Math.PI);
+    ctx.fillStyle = "#222";
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#aaa";
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // === Dial superior negro, inferior gris ===
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+  ctx.clip();
+
+  const dialGrad = ctx.createRadialGradient(cx, cy - 20, 10, cx, cy, radius);
+  dialGrad.addColorStop(0, "#2a2a2a");
+  dialGrad.addColorStop(0.6, "#111");
+  dialGrad.addColorStop(1, "#000");
+  ctx.fillStyle = dialGrad;
+  ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
+
+  ctx.fillStyle = gradCarc;
+  ctx.fillRect(cx - radius, yDiv, radius * 2, (cy + radius) - yDiv + 2);
+  ctx.restore();
+
+  // === Bordes circulares finos alrededor del dial ===
+  const radios = [radius + 1, radius + 6, radius + 11, radius + 16];
+  radios.forEach((r, i) => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    ctx.lineWidth = 1;
+    ctx.shadowColor = "rgba(0,0,0,0.25)";
+    ctx.shadowBlur = 3;
+    ctx.stroke();
+    ctx.shadowColor = "transparent";
+
+    if (i < radios.length - 1) {
+      let rMid = (r + radios[i + 1]) / 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rMid, 0, 2 * Math.PI);
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+    }
+  });
+
+  // === Línea blanca divisoria ===
+  const halfW = Math.sqrt(Math.max(0, radius * radius - (yDiv - cy) * (yDiv - cy)));
+  ctx.beginPath();
+  ctx.moveTo(cx - halfW - 4, yDiv);
+  ctx.lineTo(cx + halfW + 4, yDiv);
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // === Círculo central ===
+  ctx.beginPath();
+  ctx.arc(cx, yDiv, 10, 0, 2 * Math.PI);
+  ctx.fillStyle = "black";
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "white";
+  ctx.stroke();
+
+  // === Escala ===
+  const pivotX = cx, pivotY = yDiv;
+  const scaleRadius = 120;
+  ctx.beginPath();
+  ctx.arc(pivotX, pivotY, scaleRadius, valToAngle(-15), valToAngle(5), false);
+  ctx.strokeStyle = "yellow";
+  ctx.lineWidth = 10;
+  ctx.stroke();
+
+  for (let i = minVal; i <= maxVal; i += 5) {
+    const ang = valToAngle(i);
+    const cos = Math.cos(ang), sin = Math.sin(ang);
+    const outer = scaleRadius + 12;
+    const inner = (i % 10 === 0) ? scaleRadius - 20 : scaleRadius - 10;
+    const x1 = pivotX + cos * inner, y1 = pivotY + sin * inner;
+    const x2 = pivotX + cos * outer, y2 = pivotY + sin * outer;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = (i % 10 === 0) ? 2 : 1;
+    ctx.stroke();
+
+    if (i % 10 === 0) {
+      const tx = pivotX + cos * (scaleRadius - 32);
+      const ty = pivotY + sin * (scaleRadius - 32);
+      ctx.font = "13px Arial";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(i, tx, ty);
+    }
+  }
+
+  // === Texto dentro del área negra ===
+  ctx.fillStyle = "white";
+  ctx.font = "16px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("°C", pivotX, pivotY - 45);
+  ctx.font = "14px Arial";
+  ctx.fillText("CARB. TEMP.", pivotX, pivotY - 25);
+
+  // === Texto inferior ===
+  ctx.fillStyle = "white";
+  ctx.font = "11px Arial";
+  ctx.fillText("KEEP NEEDLE OUT OF", cx, yDiv + 20);
+  ctx.fillText("YELLOW ARC", cx, yDiv + 35);
+  ctx.fillText("DURING POSSIBLE CARBURETOR", cx, yDiv + 50);
+  ctx.fillText("ICING CONDITIONS", cx, yDiv + 65);
+
+  // === Aguja ===
+  dibujarAguja(valor, pivotX, pivotY);
+}
+
+function dibujarAguja(valor, px, py) {
+  const ang = valToAngle(valor);
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.rotate(ang);
+
+  ctx.beginPath();
+  ctx.moveTo(-6, 0);
+  ctx.lineTo(70, 0);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "white";
+  ctx.lineCap = "round";
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(70, 0);
+  ctx.lineTo(64, -6);
+  ctx.lineTo(64, 6);
+  ctx.closePath();
+  ctx.fillStyle = "white";
+  ctx.fill();
+
+  ctx.restore();
+}
+
+slider.addEventListener("input", (e) => {
+  val = Number(e.target.value);
+  valorBox.textContent = val + " °C";
+  dibujarInstrumento(val);
+});
+
+dibujarInstrumento(0);
+</script>
+</body>
+</html>

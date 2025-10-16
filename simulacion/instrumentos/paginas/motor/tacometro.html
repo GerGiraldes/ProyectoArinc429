@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tacómetro</title>
+    <!-- Usar ruta explícita relativa -->
+    <link rel="stylesheet" href="../../../mainStyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  </head>
+<body>
+  <div class="title">Tacómetro</div>
+
+
+  <canvas id="tacometro" width="390" height="390"></canvas>
+
+  <input type="range" id="control" min="0" max="35" step="1" value="0" />
+  <br />
+  <div id="valor" class="valor-box">0 RPM x100</div>
+
+  <script>
+    const canvas = document.getElementById("tacometro");
+    const ctx = canvas.getContext("2d");
+    const slider = document.getElementById("control");
+    const valorBox = document.getElementById("valor");
+
+    let val = 0;
+    const maxVal = 35;
+    const cx = 200, cy = 200;
+
+    function valToAngle(v) {
+      return Math.PI * 0.75 + (v / maxVal) * Math.PI * 1.5;
+    }
+
+    function dibujarInstrumento(valor) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // === Carcasa octogonal con sombreado ===
+      let grad = ctx.createLinearGradient(30, 30, 370, 370);
+      grad.addColorStop(0, "#777");
+      grad.addColorStop(0.5, "#555");
+      grad.addColorStop(1, "#333");
+
+      ctx.beginPath();
+      ctx.moveTo(90, 30);
+      ctx.lineTo(310, 30);
+      ctx.lineTo(370, 90);
+      ctx.lineTo(370, 310);
+      ctx.lineTo(310, 370);
+      ctx.lineTo(90, 370);
+      ctx.lineTo(30, 310);
+      ctx.lineTo(30, 90);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+
+      // === Orificios en las esquinas ===
+      const orificios = [
+        [70, 70],
+        [330, 70],
+        [330, 330],
+        [70, 330],
+      ];
+      orificios.forEach(([x, y]) => {
+        ctx.shadowColor = "rgba(0,0,0,0.4)";
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, 2 * Math.PI);
+        ctx.fillStyle = "#222";
+        ctx.fill();
+        ctx.strokeStyle = "#aaa";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowColor = "transparent";
+      });
+
+      // === Dial negro con gradiente  ===
+      ctx.beginPath();
+      ctx.arc(cx, cy, 130, 0, 2 * Math.PI);
+      const dialGrad = ctx.createRadialGradient(cx, cy, 80, cx, cy, 130);
+      dialGrad.addColorStop(0, "#222");
+      dialGrad.addColorStop(1, "#000");
+      ctx.fillStyle = dialGrad;
+      ctx.fill();
+
+      // === Bordes circulares finos con sombras entre ellos ===
+      const radios = [131, 136, 141, 146];
+      radios.forEach((r, i) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+        ctx.lineWidth = 1;
+        ctx.shadowColor = "rgba(0,0,0,0.25)";
+        ctx.shadowBlur = 3;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 1;
+        ctx.stroke();
+        ctx.shadowColor = "transparent";
+
+        if (i < radios.length - 1) {
+          let rMid = (r + radios[i + 1]) / 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, rMid, 0, 2 * Math.PI);
+          ctx.strokeStyle = "rgba(0, 0, 0, 0.08)";
+          ctx.lineWidth = 4;
+          ctx.stroke();
+        }
+      });
+
+      // === Franjas de colores ===
+      function arcoColor(inicio, fin, color) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, 120, valToAngle(inicio), valToAngle(fin));
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 12;
+        ctx.stroke();
+      }
+      arcoColor(15, 23, "green");
+      arcoColor(23, 25, "yellow");
+      arcoColor(25, 35, "red");
+
+      // === Marcas y números ===
+      ctx.strokeStyle = "white";
+      ctx.fillStyle = "white";
+      for (let i = 0; i <= maxVal; i++) {
+        const ang = valToAngle(i);
+        const cos = Math.cos(ang), sin = Math.sin(ang);
+        const outer = 125;
+        const inner = (i % 5 === 0) ? 100 : 115;
+        const x1 = cx + cos * inner, y1 = cy + sin * inner;
+        const x2 = cx + cos * outer, y2 = cy + sin * outer;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.lineWidth = (i % 5 === 0) ? 2.5 : 1;
+        ctx.stroke();
+
+        if (i % 5 === 0) {
+          const tx = cx + cos * 85;
+          const ty = cy + sin * 85;
+          ctx.font = "15px Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(i, tx, ty);
+        }
+      }
+
+      // === Texto "RPM x100" MÁS ARRIBA sobre el círculo central ===
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.fillText("RPM", cx, cy - 45);
+      ctx.fillText("x100", cx, cy - 25);
+
+      // === Cuadro pequeño "Hours" y "000000h" debajo de RPM x100 ===
+      const rectWidth = 90;
+      const rectHeight = 40;
+      const rectX = cx - rectWidth / 2;
+      const rectY = cy + 65;
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect
+        ? ctx.roundRect(rectX, rectY, rectWidth, rectHeight, 6)
+        : (() => {
+            const r = 6;
+            ctx.moveTo(rectX + r, rectY);
+            ctx.lineTo(rectX + rectWidth - r, rectY);
+            ctx.quadraticCurveTo(rectX + rectWidth, rectY, rectX + rectWidth, rectY + r);
+            ctx.lineTo(rectX + rectWidth, rectY + rectHeight - r);
+            ctx.quadraticCurveTo(
+              rectX + rectWidth,
+              rectY + rectHeight,
+              rectX + rectWidth - r,
+              rectY + rectHeight
+            );
+            ctx.lineTo(rectX + r, rectY + rectHeight);
+            ctx.quadraticCurveTo(rectX, rectY + rectHeight, rectX, rectY + rectHeight - r);
+            ctx.lineTo(rectX, rectY + r);
+            ctx.quadraticCurveTo(rectX, rectY, rectX + r, rectY);
+          })();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#ccc";
+      ctx.font = "12px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText("Hours", cx, rectY + 4);
+
+      ctx.fillStyle = "white";
+      ctx.font = "18px monospace";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("000000h", cx, rectY + rectHeight - 6);
+
+      // === Aguja personalizada ===
+      dibujarAguja(valor);
+    }
+
+    function dibujarAguja(valor) {
+      const ang = valToAngle(valor);
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(ang);
+
+      ctx.beginPath();
+      ctx.moveTo(-8, 0);
+      ctx.lineTo(-5, -10);
+      ctx.lineTo(60, -4);
+      ctx.lineTo(60, 4);
+      ctx.lineTo(-5, 10);
+      ctx.closePath();
+      ctx.fillStyle = "black";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "white";
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(60, -4);
+      ctx.lineTo(70, 0);
+      ctx.lineTo(60, 4);
+      ctx.closePath();
+      ctx.fillStyle = "white";
+      ctx.fill();
+
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, 10, 0, 2 * Math.PI);
+      ctx.fillStyle = "black";
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "white";
+      ctx.stroke();
+    }
+
+    slider.addEventListener("input", (e) => {
+      val = Number(e.target.value);
+      valorBox.textContent = val + " RPM x100";
+      dibujarInstrumento(val);
+    });
+
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        if (typeof r === "number") {
+          r = { tl: r, tr: r, br: r, bl: r };
+        } else {
+          var defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+          for (var side in defaultRadius) {
+            r[side] = r[side] || defaultRadius[side];
+          }
+        }
+        this.beginPath();
+        this.moveTo(x + r.tl, y);
+        this.lineTo(x + w - r.tr, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + r.tr);
+        this.lineTo(x + w, y + h - r.br);
+        this.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
+        this.lineTo(x + r.bl, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - r.bl);
+        this.lineTo(x, y + r.tl);
+        this.quadraticCurveTo(x, y, x + r.tl, y);
+        this.closePath();
+      };
+    }
+
+    dibujarInstrumento(0);
+  </script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cantidad de combustible</title>
+    <!-- Usar ruta explícita relativa -->
+    <link rel="stylesheet" href="../../../mainStyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  </head>
+<body>
+  <div class="title">Cantidad de Combustible</div>
+
+  <canvas id="canvas" width="390" height="390"></canvas>
+  <input type="range" id="control" min="0" max="100" value="0" />
+  <br />
+  <div id="valor" class="valor-box">0%</div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const slider = document.getElementById("control");
+    const valorBox = document.getElementById("valor");
+
+    const cx = 200, cy = 200;
+    const radius = 130;
+    const agujaY = cy + 35;
+
+    // Cargar imagen de gasolinera
+    const iconoImg = new Image();
+    iconoImg.src = "icono_gasolinera.png";
+    let imagenLista = false;
+
+    iconoImg.onload = () => {
+      imagenLista = true;
+      dibujarInstrumento(parseInt(slider.value));
+    };
+
+    function valToAngle(v) {
+      return -Math.PI / 2 - Math.PI / 4 + (v / 100) * (Math.PI / 2);
+    }
+
+    function dibujarInstrumento(valor) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // === Carcasa octogonal gris ===
+      let grad = ctx.createLinearGradient(30, 30, 370, 370);
+      grad.addColorStop(0, "#777");
+      grad.addColorStop(0.5, "#555");
+      grad.addColorStop(1, "#333");
+
+      ctx.beginPath();
+      ctx.moveTo(90, 30);
+      ctx.lineTo(310, 30);
+      ctx.lineTo(370, 90);
+      ctx.lineTo(370, 310);
+      ctx.lineTo(310, 370);
+      ctx.lineTo(90, 370);
+      ctx.lineTo(30, 310);
+      ctx.lineTo(30, 90);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+
+      // === Orificios ===
+      [[70, 70], [330, 70], [330, 330], [70, 330]].forEach(([x, y]) => {
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, 2 * Math.PI);
+        ctx.fillStyle = "#222";
+        ctx.shadowColor = "rgba(0,0,0,0.4)";
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.fill();
+        ctx.strokeStyle = "#aaa";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowColor = "transparent";
+      });
+
+      // === Círculo negro con gradiente ===
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+      const dialGrad = ctx.createRadialGradient(cx, cy - 20, 10, cx, cy, radius);
+      dialGrad.addColorStop(0, "#2a2a2a");
+      dialGrad.addColorStop(1, "#000");
+      ctx.fillStyle = dialGrad;
+      ctx.fill();
+
+      // === Bordes circulares finos ===
+      [131, 136, 141, 146].forEach((r, i) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+        ctx.strokeStyle = "rgba(255,255,255,0.2)";
+        ctx.lineWidth = 1;
+        ctx.shadowColor = "rgba(0,0,0,0.25)";
+        ctx.shadowBlur = 3;
+        ctx.stroke();
+        ctx.shadowColor = "transparent";
+
+        if (i < 3) {
+          let rMid = (r + [131, 136, 141, 146][i + 1]) / 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, rMid, 0, 2 * Math.PI);
+          ctx.strokeStyle = "rgba(0,0,0,0.08)";
+          ctx.lineWidth = 4;
+          ctx.stroke();
+        }
+      });
+
+      // === Escala personalizada ===
+      const scaleStart = -Math.PI * 3 / 4;
+      const scaleEnd = -Math.PI / 4;
+      const scaleCenter = (scaleStart + scaleEnd) / 2;
+
+      const puntos = [
+        { label: "E", angle: scaleStart },
+        { label: "1/2", angle: scaleCenter },
+        { label: "F", angle: scaleEnd }
+      ];
+
+      // Franja roja
+      ctx.beginPath();
+      ctx.arc(cx, cy, 110, scaleStart, (scaleStart + scaleCenter) / 2);
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 10;
+      ctx.stroke();
+
+      // Marcas y texto
+      puntos.forEach(p => {
+        const x = cx + Math.cos(p.angle) * 90;
+        const y = cy + Math.sin(p.angle) * 90;
+        ctx.fillStyle = "white";
+        ctx.font = "bold 16px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(p.label, x, y);
+
+        // Marca grande
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(p.angle) * 110, cy + Math.sin(p.angle) * 110);
+        ctx.lineTo(cx + Math.cos(p.angle) * 120, cy + Math.sin(p.angle) * 120);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Imagen debajo del "1/2"
+        if (p.label === "1/2" && imagenLista) {
+          const size = 24;
+          ctx.drawImage(iconoImg, x - size / 2, y + 10, size, size);
+        }
+      });
+
+      // Rayitas intermedias
+      [(scaleStart + scaleCenter) / 2, (scaleCenter + scaleEnd) / 2].forEach(angle => {
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(angle) * 113, cy + Math.sin(angle) * 113);
+        ctx.lineTo(cx + Math.cos(angle) * 120, cy + Math.sin(angle) * 120);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+
+      // === Aguja blanca mejorada ===
+      const ang = valToAngle(valor);
+      ctx.save();
+      ctx.translate(cx, agujaY);
+      ctx.rotate(ang);
+      ctx.beginPath();
+      ctx.moveTo(-8, 0);
+      ctx.lineTo(65, -4);
+      ctx.lineTo(75, 0);
+      ctx.lineTo(65, 4);
+      ctx.closePath();
+      ctx.fillStyle = "white";
+      ctx.shadowColor = "rgba(0,0,0,0.4)";
+      ctx.shadowBlur = 4;
+      ctx.fill();
+      ctx.restore();
+
+      // Círculo base aguja
+      ctx.beginPath();
+      ctx.arc(cx, agujaY, 12, 0, 2 * Math.PI);
+      const centerGrad = ctx.createRadialGradient(cx, agujaY - 5, 3, cx, agujaY, 12);
+      centerGrad.addColorStop(0, "#444");
+      centerGrad.addColorStop(1, "#000");
+      ctx.fillStyle = centerGrad;
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "white";
+      ctx.stroke();
+
+      // Texto "FUEL"
+      ctx.fillStyle = "white";
+      ctx.font = "bold 20px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("FUEL", cx, cy + 75);
+    }
+
+    // Inicializar
+    slider.addEventListener("input", function () {
+      const valor = parseInt(this.value);
+      valorBox.textContent = valor + "%";
+      dibujarInstrumento(valor);
+    });
+
+    // Dibujo inicial (solo si imagen ya cargó)
+    if (imagenLista) {
+      dibujarInstrumento(0);
+    }
+  </script>
+</body>
+</html>

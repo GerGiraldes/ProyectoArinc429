@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Instrumentos</title>
+    <!-- Usar ruta explícita relativa -->
+    <link rel="stylesheet" href="./mainStyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  </head>
+<body>
+  <div class="boton">Volver</div>
+  
+  <div class="title">Simulador de Instrumentos</div>
+
+  <div class="panel">
+  <div class="left">
+    <div class="selects">
+      <select id="grupo">
+        <option value="">Seleccione Grupo</option>
+        <option value="motor">Motor</option>
+        <option value="navegacion">Navegación</option>
+        <option value="vuelo">Control de vuelo</option>
+      </select>
+      <select id="instrumento" disabled>
+        <option value="">Seleccione Instrumento</option>
+      </select>
+    </div>
+  </div>
+  <div class="right">
+    <div class="instrument" id="contenedor">
+      Seleccione un instrumento
+    </div>
+  </div>
+</div>
+</div>
+
+  <!-- Reemplazado: quitar el script inline y usar archivo externo -->
+  <script src="./mainScript.js"></script>
+</body>
+</html>
