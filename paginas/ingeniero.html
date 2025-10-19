@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explicación Técnica - Proyecto ARINC429</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/infoStyle.css" />
+</head>
+<body>
+
+  <!-- Menú lateral -->
+  <div class="side-menu" id="sideMenu">
+    <a href="../index.html">Inicio</a>
+    <a href="arinc429.html">De que trata nuestro proyecto</a>
+    <a href="doñaRosa.html">Explicación básica</a>
+    <a href="ingeniero.html">Explicación técnica</a>
+  </div>
+
+  <!-- Barra superior -->
+  <div class="top-bar">
+    <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    <span class="title-bar">Explicación Técnica</span>
+  </div>
+
+  <div style="margin: 30px 20px;">
+    <main>
+      <section>
+        <h2>Resumen técnico</h2>
+        <p>
+          ARINC 429 es un estándar de comunicación aeronáutica simple, fiable y unidireccional, diseñado para transmisión de datos entre equipos aviónicos.
+          Se caracteriza por palabras de 32 bits, operación simplex (un transmisor — múltiples receptores), dos velocidades normalizadas y comprobación por paridad.
+        </p>
+      </section>
+
+      <section>
+        <h2>Formato de palabra ARINC 429 (32 bits)</h2>
+        <p>La palabra está organizada en campos fijos. Interpretación habitual:</p>
+        <ol>
+          <li><strong>Bits 1–8: Etiqueta (Label)</strong> — código de 8 bits que identifica el tipo de dato (se suele representar en octal).</li>
+          <li><strong>Bits 9–10: SDI</strong> — Source/Destination Identifier, usado opcionalmente para identificar origen/destino dentro de un sistema.</li>
+          <li><strong>Bits 11–29: Datos</strong> — campo de datos (19 bits) cuyo formato depende de la etiqueta: BNR, BCD o discreto.</li>
+          <li><strong>Bits 30–31: SSM</strong> — Sign/Status Matrix; indican signo o estado/validez del dato según etiqueta.</li>
+          <li><strong>Bit 32: Paridad</strong> — paridad impar (odd parity) sobre los 32 bits; se usa para detección básica de errores.</li>
+        </ol>
+        <p>
+          Nota: los bits se transmiten en orden desde el bit 1 hasta el bit 32 (la paridad se envía al final). La etiqueta frecuentemente se expresa en notación octal (000–377).
+        </p>
+      </section>
+
+      <section>
+        <h2>Formatos de datos</h2>
+        <p>
+          Dependiendo de la etiqueta, los bits de datos (11–29) interpretan la información de formas distintas:
+        </p>
+        <ul>
+          <li><strong>BNR (Binary/Normalized)</strong>: representa valores numéricos continuos con una escala y signo; el factor de escala y la posición del punto decimal son definidos por la documentación de la etiqueta.</li>
+          <li><strong>BCD (Binary-Coded Decimal)</strong>: los dígitos decimales se codifican en grupos de 4 bits (nibbles), adecuado para valores decimales fijos.</li>
+          <li><strong>Discrete</strong>: bits individuales representan estados lógicos (banderas), cada bit con significado propio.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Sign/Status Matrix (SSM)</h2>
+        <p>
+          Las dos posiciones de SSM codifican información de signo o estado del dato (por ejemplo: valor válido, no disponible, test, fallo). Los valores concretos y su significado dependen de la etiqueta y del equipo; la especificación ARINC y la documentación del fabricante detallan las codificaciones para cada caso.
+        </p>
+      </section>
+
+      <section>
+        <h2>Paridad y verificación</h2>
+        <p>
+          ARINC 429 usa paridad impar. El bit 32 se ajusta para que el número total de bits '1' en la palabra sea impar. Esto proporciona detección simple de errores de bit; aplicaciones más críticas suelen añadir comprobaciones adicionales y políticas de tolerancia a fallos.
+        </p>
+      </section>
+
+      <section>
+        <h2>Velocidades y enlace físico</h2>
+        <ul>
+          <li><strong>Velocidades oficiales</strong>: típicamente 100 kb/s (alta velocidad) y 12.5 kb/s (baja velocidad).</li>
+          <li><strong>Topología física</strong>: enlace unidireccional sobre par trenzado apantallado, normalmente acoplado por transformadores en transmisores y receptores para aislamiento y rechazo de ruido.</li>
+          <li><strong>Simplex</strong>: cada canal tiene un transmisor y cero o más receptores; no existe arbitraje en el bus — el diseño debe asegurar que sólo un transmisor envía por canal.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Etiquetas (Label)</h2>
+        <p>
+          La etiqueta identifica qué tipo de dato contiene la palabra (por ejemplo: rumbo, altitud, velocidad). Las etiquetas se organizan por bloques y se representan habitualmente en octal (000–377). Para interpretar una palabra, primero se consulta la etiqueta para saber cómo decodificar el campo de datos y el SSM.
+        </p>
+      </section>
+
+      <section>
+        <h2>Consideraciones de implementación</h2>
+        <ul>
+          <li>Filtrar etiquetas en los receptores: procesar sólo las etiquetas relevantes para ahorrar ciclo CPU.</li>
+          <li>Comprobar paridad en recepción; descartar palabras con paridad incorrecta o contarlas para estadísticas de error.</li>
+          <li>Aplicar la escala y resolución correctas según la etiqueta (factor de conversión BNR).</li>
+          <li>Tratar SSM y SDI según la especificación de la etiqueta: SSM puede indicar datos no válidos o condiciones especiales.</li>
+          <li>Manejo de tiempos y buffers: debido a la simplicidad del bus, diseñar buffers y timestampos para evitar pérdida de palabras y permitir trazabilidad.</li>
+          <li>Pruebas: validar con generadores de tramas y analizadores para comprobar etiquetas, paridad y tiempos de transmisión.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Ejemplo de flujo de decodificación (resumido)</h2>
+        <ol>
+          <li>Recibir palabra de 32 bits.</li>
+          <li>Verificar paridad impar (bit 32).</li>
+          <li>Extraer etiqueta (bits 1–8) y representarla (usualmente en octal).</li>
+          <li>Consultar la tabla de etiquetas: determinar formato (BNR/BCD/discreto), factor de escala y significado del SSM.</li>
+          <li>Decodificar campo datos (11–29) con la interpretación adecuada y aplicar factor de escala.</li>
+          <li>Interpretar SSM (30–31) y SDI (9–10) según la etiqueta.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Buenas prácticas y seguridad</h2>
+        <p>
+          Documentar las etiquetas utilizadas, mantener tablas de conversión y manejo de errores, utilizar aislamiento físico entre sistemas críticos y realizar pruebas de integridad con equipos certificados. Para integraciones reales, consultar la especificación ARINC 429 y la documentación del fabricante.
+        </p>
+      </section>
+
+      <section>
+        <h2>Referencias útiles</h2>
+        <p>
+          Consultar la especificación ARINC 429 (documento oficial ARINC), manuales y notas de los fabricantes de transceptores/receptores para detalles eléctricos y tiempos, y bibliografía aeronáutica para ejemplos de etiquetas y escalas.
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      const sideMenu = document.getElementById('sideMenu');
+      sideMenu.classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>

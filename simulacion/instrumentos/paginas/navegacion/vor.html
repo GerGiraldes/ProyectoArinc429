@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VOR</title>
+  <link rel="stylesheet" href="../../../../styles/mainStyle.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .title{font-size:20px; margin:6px 0;}
+    .controls{display:flex; gap:12px; align-items:center; margin-top:8px; flex-wrap:wrap;}
+    .valor-box{background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:6px; min-width:110px; text-align:center;}
+    .small{font-size:12px; color:#bbb;}
+    canvas{border-radius:8px;}
+  </style>
+</head>
+<body>
+  <div class="title">VOR</div>
+
+  <canvas id="vor" width="390" height="390"></canvas>
+
+  <div class="controls">
+    <div>
+      <label class="small">OBS (Course)</label><br/>
+      <input type="range" id="obs" min="0" max="359" step="1" value="0" />
+      <div id="obsVal" class="valor-box">CRS 000°</div>
+    </div>
+
+    <div>
+      <label class="small">Bearing to station</label><br/>
+      <input type="range" id="bearing" min="0" max="359" step="1" value="0" />
+      <div id="bearVal" class="valor-box">BRG 000°</div>
+    </div>
+
+    <div>
+      <label class="small">CDI deflection (-4..4)</label><br/>
+      <input type="range" id="cdi" min="-4" max="4" step="1" value="0" />
+      <div id="cdiVal" class="valor-box">DEV 0</div>
+    </div>
+
+    <div>
+      <div id="tofrom" class="valor-box">--</div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("vor");
+    const ctx = canvas.getContext("2d");
+    const obsSlider = document.getElementById("obs");
+    const bearSlider = document.getElementById("bearing");
+    const cdiSlider = document.getElementById("cdi");
+    const obsVal = document.getElementById("obsVal");
+    const bearVal = document.getElementById("bearVal");
+    const cdiVal = document.getElementById("cdiVal");
+    const tofromBox = document.getElementById("tofrom");
+
+    const cx = 200, cy = 200;
+
+    function pad3(n){ return (""+n).padStart(3,"0"); }
+
+    // CARCASA igual que ADF
+    function drawOuterShell() {
+      let grad = ctx.createLinearGradient(30, 30, 370, 370);
+      grad.addColorStop(0, "#777");
+      grad.addColorStop(0.5, "#555");
+      grad.addColorStop(1, "#333");
+
+      ctx.beginPath();
+      ctx.moveTo(90, 30);
+      ctx.lineTo(310, 30);
+      ctx.lineTo(370, 90);
+      ctx.lineTo(370, 310);
+      ctx.lineTo(310, 370);
+      ctx.lineTo(90, 370);
+      ctx.lineTo(30, 310);
+      ctx.lineTo(30, 90);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+
+      // orificios (esquinas) como en ADF
+      const orificios = [
+        [70, 70],
+        [330, 70],
+        [330, 330],
+        [70, 330],
+      ];
+      orificios.forEach(([x, y]) => {
+        ctx.shadowColor = "rgba(0,0,0,0.4)";
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, 2 * Math.PI);
+        ctx.fillStyle = "#222";
+        ctx.fill();
+        ctx.strokeStyle = "#aaa";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowColor = "transparent";
+      });
+    }
+
+    function drawDialBackground() {
+      ctx.beginPath();
+      ctx.arc(cx, cy, 130, 0, Math.PI*2);
+      const dialGrad = ctx.createRadialGradient(cx, cy, 50, cx, cy, 130);
+      dialGrad.addColorStop(0, "#2a2a2a");
+      dialGrad.addColorStop(1, "#111");
+      ctx.fillStyle = dialGrad;
+      ctx.fill();
+
+      [131,136,141].forEach(r=>{
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI*2);
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+    }
+
+    // marcajes fijos (marcas pequeñas) — los números del card se dibujan sobre una carta rotatoria
+    function drawGraduations() {
+      ctx.save();
+      ctx.translate(cx, cy);
+      for(let deg=0; deg<360; deg+=5){
+        const ang = (deg-90) * Math.PI/180;
+        const cos = Math.cos(ang), sin = Math.sin(ang);
+        const outer = 120;
+        let inner = 110;
+        ctx.beginPath();
+        if(deg % 30 === 0){ inner = 95; ctx.lineWidth = 2; }
+        else if(deg % 10 === 0){ inner = 105; ctx.lineWidth = 1.5; }
+        else { inner = 112; ctx.lineWidth = 1; }
+        ctx.moveTo(cos*inner, sin*inner);
+        ctx.lineTo(cos*outer, sin*outer);
+        ctx.strokeStyle = "white";
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // cardinales
+      ctx.fillStyle = "orange";
+      ctx.font = "bold 16px Roboto, Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("N", cx, cy-80);
+      ctx.fillText("E", cx+85, cy+5);
+      ctx.fillText("S", cx, cy+90);
+      ctx.fillText("W", cx-85, cy+5);
+    }
+
+    // carta rotatoria que responde al OBS
+    function drawCompassCard(obs) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((-obs) * Math.PI/180); // rota la tarjeta para que CRS quede arriba
+
+      for(let deg=0; deg<360; deg+=30){
+        const ang = (deg-90) * Math.PI/180;
+        const cos = Math.cos(ang), sin = Math.sin(ang);
+        ctx.save();
+        ctx.translate(cos*78, sin*78);
+        ctx.rotate(obs * Math.PI/180); // mantener texto legible
+        ctx.fillStyle = "white";
+        ctx.font = "bold 14px Roboto, Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        let label = deg === 0 ? "0" : String(deg);
+        ctx.fillText(label, 0, 0);
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    function drawCourseSelector(obs) {
+      // lubber triangle fijo en la carcasa (arriba)
+      ctx.beginPath();
+      ctx.moveTo(cx, cy-130);
+      ctx.lineTo(cx-9, cy-114);
+      ctx.lineTo(cx+9, cy-114);
+      ctx.closePath();
+      ctx.fillStyle = "gold";
+      ctx.fill();
+
+      // aguja de rumbo (Course needle) - rota con OBS
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((obs-90) * Math.PI/180);
+      // aguja triangular superior
+      ctx.beginPath();
+      ctx.moveTo(-8, -98);
+      ctx.lineTo(8, -98);
+      ctx.lineTo(0, -72);
+      ctx.closePath();
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+
+      // aguja larga blanca
+      ctx.beginPath();
+      ctx.moveTo(0, -110);
+      ctx.lineTo(0, 110);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "white";
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawCDI(deflection) {
+      // centro y cruceta
+      ctx.beginPath();
+      ctx.arc(cx, cy, 16, 0, Math.PI*2);
+      ctx.fillStyle = "#111";
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "orange";
+      ctx.stroke();
+
+      // barra horizontal de referencia (avión)
+      ctx.beginPath();
+      ctx.moveTo(cx-40, cy);
+      ctx.lineTo(cx+40, cy);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.stroke();
+
+      // cadena de puntos vertical (estática)
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      for(let i=-4;i<=4;i++){
+        ctx.beginPath();
+        ctx.arc(0, i*12, 4, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // aguja CDI: barra vertical que se desplaza horizontalmente según deflection (-4..4)
+      const maxPx = 48; // desplazamiento para +/-4
+      const px = (deflection/4) * maxPx;
+      ctx.beginPath();
+      ctx.rect(cx-3 + px, cy-36, 6, 72);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,0.6)";
+      ctx.stroke();
+
+      // anillo centro
+      ctx.beginPath();
+      ctx.arc(cx, cy, 6, 0, Math.PI*2);
+      ctx.fillStyle = "#222";
+      ctx.fill();
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // To/From flags (estilo simple)
+    function drawToFromFlags(tf) {
+      const tfX = cx+60, tfY = cy-36;
+      ctx.fillStyle = "#000";
+      roundRect(ctx, tfX, tfY, 44, 28, 3, true, false);
+      roundRect(ctx, tfX, tfY+40, 44, 28, 3, true, false);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(tfX, tfY, 44, 28);
+      ctx.strokeRect(tfX, tfY+40, 44, 28);
+
+      ctx.fillStyle = "white";
+      ctx.font = "bold 13px Roboto, Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("To", tfX+22, tfY+18);
+      ctx.fillText("Fr", tfX+22, tfY+58);
+
+      ctx.fillStyle = tf === "To" ? "white" : "white";
+      ctx.beginPath();
+      if(tf === "To"){
+        ctx.moveTo(tfX+18, tfY+6);
+        ctx.lineTo(tfX+10, tfY+20);
+        ctx.lineTo(tfX+28, tfY+20);
+      } else {
+        ctx.moveTo(tfX+10, tfY+50);
+        ctx.lineTo(tfX+28, tfY+50);
+        ctx.lineTo(tfX+19, tfY+62);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+    }
+
+    function roundRect(ctx, x, y, w, h, r, fill, stroke) {
+      if (typeof r === 'undefined') r = 5;
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    function computeToFrom(obs, bearingTo) {
+      let diff = ((bearingTo - obs + 540) % 360) - 180;
+      return Math.abs(diff) <= 90 ? "To" : "Fr";
+    }
+
+    // aguja que indica bearing hacia la estación (se dibuja respecto al avión indcado por la cruz central)
+    function drawBearingNeedle(bearingTo) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((bearingTo-90) * Math.PI/180);
+      ctx.beginPath();
+      ctx.moveTo(-70, 0);
+      ctx.lineTo(70, 0);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(70, 0);
+      ctx.lineTo(64, -8);
+      ctx.lineTo(64, 8);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawVOR(obs, bearingTo, dev, tf) {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawOuterShell();
+      drawDialBackground();
+      drawGraduations();
+      drawCompassCard(obs);
+      drawCourseSelector(obs);
+      drawCDI(dev);
+      drawToFromFlags(tf);
+
+
+
+      // aguja bearing (se dibuja por encima)
+      drawBearingNeedle(bearingTo);
+    }
+
+    // eventos y actualización
+    function update() {
+      const obs = Number(obsSlider.value);
+      const bearingTo = Number(bearSlider.value);
+      const dev = Number(cdiSlider.value);
+
+      obsVal.textContent = "CRS " + pad3(obs) + "°";
+      bearVal.textContent = "BRG " + pad3(bearingTo) + "°";
+      cdiVal.textContent = "DEV " + (dev>0? "+"+dev : dev);
+
+      const tfComputed = computeToFrom(obs, bearingTo);
+      tofromBox.textContent = tfComputed;
+      tofromBox.style.background = tfComputed === "To" ? "rgba(0,150,0,0.18)" : "rgba(150,0,0,0.18)";
+
+      // dibujar instrumento
+      drawVOR(obs, bearingTo, dev, tfComputed);
+    }
+
+    obsSlider.addEventListener("input", update);
+    bearSlider.addEventListener("input", update);
+    cdiSlider.addEventListener("input", update);
+
+    // inicial
+    update();
+  </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ADF</title>
+  <link rel="stylesheet" href="../../../../styles/mainStyle.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="title">ADF</div>
+
+  <canvas id="adf" width="390" height="390"></canvas>
+
+  <input type="range" id="control" min="0" max="359" step="1" value="0" />
+  <br />
+  <div id="valor" class="valor-box">Deg 000°</div>
+
+  <script>
+    const canvas = document.getElementById("adf");
+    const ctx = canvas.getContext("2d");
+    const slider = document.getElementById("control");
+    const valorBox = document.getElementById("valor");
+
+    const cx = 200, cy = 200;
+    let bearing = 0;
+
+    function pad3(n){ return (""+n).padStart(3,"0"); }
+
+    function dibujarInstrumento(b) {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      // Carcasa octogonal (estilo tacómetro)
+      let grad = ctx.createLinearGradient(30, 30, 370, 370);
+      grad.addColorStop(0, "#777");
+      grad.addColorStop(0.5, "#555");
+      grad.addColorStop(1, "#333");
+
+      ctx.beginPath();
+      ctx.moveTo(90, 30);
+      ctx.lineTo(310, 30);
+      ctx.lineTo(370, 90);
+      ctx.lineTo(370, 310);
+      ctx.lineTo(310, 370);
+      ctx.lineTo(90, 370);
+      ctx.lineTo(30, 310);
+      ctx.lineTo(30, 90);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = 3;
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+
+      const orificios = [
+        [70, 70],
+        [330, 70],
+        [330, 330],
+        [70, 330],
+      ];
+      orificios.forEach(([x, y]) => {
+        ctx.shadowColor = "rgba(0,0,0,0.4)";
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, 2 * Math.PI);
+        ctx.fillStyle = "#222";
+        ctx.fill();
+        ctx.strokeStyle = "#aaa";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowColor = "transparent";
+      });
+
+      // Dial interior
+      ctx.beginPath();
+      ctx.arc(cx, cy, 130, 0, Math.PI*2);
+      const dialGrad = ctx.createRadialGradient(cx, cy, 50, cx, cy, 130);
+      dialGrad.addColorStop(0, "#2a2a2a");
+      dialGrad.addColorStop(1, "#111");
+      ctx.fillStyle = dialGrad;
+      ctx.fill();
+
+      // Anillos finos
+      [131,136,141].forEach((r,i)=>{
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI*2);
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+
+      // Marcas y números (cada 30° número, cada 10° marca larga, cada 5° corta)
+      ctx.save();
+      ctx.translate(cx, cy);
+      for(let deg=0; deg<360; deg+=5){
+        const ang = (deg-90) * Math.PI/180; // 0 arriba, sentido horario positivo
+        const cos = Math.cos(ang), sin = Math.sin(ang);
+        const outer = 120;
+        let inner = 110;
+        ctx.beginPath();
+        if(deg % 30 === 0){
+          inner = 95;
+          ctx.lineWidth = 2;
+        } else if (deg % 10 === 0){
+          inner = 105;
+          ctx.lineWidth = 1.5;
+        } else {
+          inner = 112;
+          ctx.lineWidth = 1;
+        }
+        ctx.moveTo(cos*inner, sin*inner);
+        ctx.lineTo(cos*outer, sin*outer);
+        ctx.strokeStyle = "white";
+        ctx.stroke();
+
+        if(deg % 30 === 0 && deg !== 90 && deg !== 270 && deg !== 0 && deg !== 180){
+          // números (0 en cima)
+          let label = deg === 0 ? "0" : String(deg);
+          ctx.save();
+          ctx.translate(cos*78, sin*78);
+          ctx.rotate(0); // mantener legible
+          ctx.fillStyle = "white";
+          ctx.font = "bold 14px Roboto, Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(label, 0, 0);
+          ctx.restore();
+        }
+      }
+      ctx.restore();
+
+      // Letras cardinales
+      ctx.fillStyle = "orange";
+      ctx.font = "bold 16px Roboto, Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("N", cx, cy-80);
+      ctx.fillText("E", cx+85, cy+5);
+      ctx.fillText("S", cx, cy+90);
+      ctx.fillText("W", cx-85, cy+5);
+
+      // Aguja de bearing (amarilla) apuntando al bearing (0° arriba)
+      dibujarAguja(b);
+
+      // Lubber line fijo (avión hacia arriba)
+      ctx.beginPath();
+      ctx.moveTo(cx-8, cy-130);
+      ctx.lineTo(cx+8, cy-130);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "white";
+      ctx.stroke();
+
+       // Centro - cruz tipo avión
+      ctx.beginPath();
+      ctx.moveTo(cx, cy-15);
+      ctx.lineTo(cx, cy+17);
+      ctx.moveTo(cx-5, cy+10);
+      ctx.lineTo(cx+5, cy+10);
+      ctx.moveTo(cx-14, cy);
+      ctx.lineTo(cx+14, cy);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "orange";
+      ctx.stroke();
+
+
+      
+
+      
+    }
+
+    function dibujarAguja(b) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate((b-90) * Math.PI/180); // Convertir grados a radianes y ajustar offset
+
+    // Longitud de la flecha
+    const longitudLinea = 90;
+    
+    // Dibujar la línea principal
+    ctx.beginPath();
+    ctx.moveTo(-longitudLinea, 0);
+    ctx.lineTo(longitudLinea, 0);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "yellow";
+    ctx.stroke();
+
+    // Dibujar la punta de flecha
+    const tamañoPunta = 12;
+    ctx.beginPath();
+    ctx.moveTo(longitudLinea, 0);
+    ctx.lineTo(longitudLinea - tamañoPunta, -tamañoPunta/2);
+    ctx.lineTo(longitudLinea - tamañoPunta, tamañoPunta/2);
+    ctx.closePath();
+    ctx.fillStyle = "yellow";
+    ctx.fill();
+
+    ctx.restore();
+}
+
+    slider.addEventListener("input", (e)=>{
+      bearing = Number(e.target.value);
+      valorBox.textContent = "Deg " + pad3(bearing) + "°";
+      dibujarInstrumento(bearing);
+    });
+
+    // Inicial
+    dibujarInstrumento(0);
+  </script>
+</body>
+</html>

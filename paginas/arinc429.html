@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>De que trata nuestro proyecto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/infoStyle.css" />
+</head>
+<body>
+
+  <!-- Menú lateral -->
+  <div class="side-menu" id="sideMenu">
+    <a href="../index.html">Inicio</a>
+    <a href="arinc429.html">De que trata nuestro proyecto</a>
+    <a href="doñaRosa.html">Explicación básica</a>
+    <a href="ingeniero.html">Explicación técnica</a>
+  </div>
+
+  <!-- Barra superior -->
+  <div class="top-bar">
+    <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    <span class="title-bar">De que Trata Nuestro Proyecto</span>
+  </div>
+
+  <div style="margin: 30px 20px;">
+
+      <main>
+        <section>
+          <h2>¿De qué trata este proyecto?</h2>
+        </section>
+    
+        <section>
+          <p>El sistema está compuesto por varios módulos conectados entre sí:</p>
+          <ol>
+            <li><strong> Interfaz Web:</strong> El usuario ingresa una dirección deseada (por ejemplo: 270° Oeste) directamente desde una página web visual.</li>
+            <li><strong> Servidor:</strong> Esa información es enviada a un servidor local, que la procesa y la prepara para transmitirla.</li>
+            <li><strong> Arduino + Transceptor ARINC 429:</strong> Un microcontrolador Arduino recibe la dirección desde el servidor, la codifica según el protocolo ARINC 429 y la transmite mediante un <em>transceptor especializado</em>.</li>
+            <li><strong> Instrumento Real:</strong> Finalmente, un instrumento físico (una brújula electrónica real de avión) recibe esta señal y cambia su lectura según el valor ingresado desde la web.</li>
+          </ol>
+        </section>
+    
+        <section>
+          <h2>¿Qué es ARINC 429?</h2>
+          <p><strong>ARINC 429</strong> es un protocolo de comunicación utilizado en aeronaves reales. Se encarga de transmitir información crítica entre instrumentos de vuelo, garantizando precisión, velocidad y confiabilidad. Este proyecto lo utiliza para simular una integración <em>casi real</em> de una cabina de avión.</p>
+        </section>
+    
+        <section>
+          <h2>¿Por qué es interesante?</h2>
+          <p>Este proyecto demuestra cómo una tecnología usada en la aviación real puede ser simulada, comprendida y controlada desde herramientas simples como una página web. Es una prueba clara de cómo el mundo digital se conecta con el mundo físico.</p>
+          <p>Además, permite:</p>
+          <ul>
+            <li>Visualizar cómo funcionan los sistemas embarcados en aeronaves.</li>
+            <li>Interactuar de forma remota con instrumentos reales.</li>
+            <li>Aprender sobre codificación, protocolos de comunicación y sistemas distribuidos.</li>
+          </ul>
+        </section>
+    
+        <section>
+          <h2>Posibilidades Futuras</h2>
+          <p>Este concepto se puede ampliar fácilmente para simular más instrumentos como el altímetro, velocímetro o horizonte artificial. Incluso se podría integrar a un simulador de vuelo completo, con retroalimentación visual y física.</p>
+        </section>
+      </main>
+    
+
+  <script>
+    function toggleMenu() {
+      const sideMenu = document.getElementById('sideMenu');
+      sideMenu.classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explicación Básica - Proyecto ARINC429</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/infoStyle.css" />
+</head>
+<body>
+
+  <!-- Menú lateral -->
+  <div class="side-menu" id="sideMenu">
+    <a href="../index.html">Inicio</a>
+    <a href="arinc429.html">De que trata nuestro proyecto</a>
+    <a href="doñaRosa.html">Explicación básica</a>
+    <a href="ingeniero.html">Explicación técnica</a>
+  </div>
+
+  <!-- Barra superior -->
+  <div class="top-bar">
+    <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    <span class="title-bar">Explicación Básica</span>
+  </div>
+
+  <div style="margin: 30px 20px;">
+    <main>
+      <section>
+        <h2>¿Qué es ARINC 429?</h2>
+        <p>
+          ARINC 429 es el sistema que usan las aeronaves para que sus distintas partes electrónicas puedan comunicarse entre sí. Por ejemplo, así se envían datos como la altitud, el rumbo o la velocidad entre los instrumentos del avión.
+        </p>
+      </section>
+
+      <section>
+        <h2>¿Para qué se usa?</h2>
+        <p>
+          Sirve para enviar información de forma segura y ordenada, evitando interferencias, de un equipo a otro dentro del avión. Así, todo funciona bien y los pilotos reciben los datos correctos.
+        </p>
+      </section>
+
+      <section>
+        <h2>¿Cómo funciona?</h2>
+        <p>
+          ARINC 429 envía mensajes que siempre tienen 32 “bits”. Esos bits dicen qué tipo de dato se está mandando (como rumbo, altitud, etc) y cuál es su valor.
+        </p>
+        <p>
+          Cada equipo puede enviar datos a muchos otros receptores (hasta 20), y los datos pueden enviarse muy seguido o solo cuando haga falta. Además, este sistema tiene un control que revisa si los datos llegan bien.
+        </p>
+      </section>
+
+
+    </main>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      const sideMenu = document.getElementById('sideMenu');
+      sideMenu.classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>
